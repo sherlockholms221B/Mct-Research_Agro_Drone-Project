@@ -1,0 +1,4 @@
+Requirement already satisfied: onnx in c:\users\caty\appdata\local\programs\python\python311\lib\site-packages (1.14.0)
+Requirement already satisfied: numpy in c:\users\caty\appdata\local\programs\python\python311\lib\site-packages (from onnx) (1.24.3)
+Requirement already satisfied: protobuf>=3.20.2 in c:\users\caty\appdata\local\programs\python\python311\lib\site-packages (from onnx) (4.22.4)
+Requirement already satisfied: typing-extensions>=3.6.2.1 in c:\users\caty\appdata\local\programs\python\python311\lib\site-packages (from onnx) (4.5.0)
