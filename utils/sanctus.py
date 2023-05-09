@@ -1,13 +1,13 @@
 import torch
 import time
-import Jetson.GPIO as GPIO
+# import Jetson.GPIO as GPIO
 
 from utils.general import ( xyxy2xywh)
 
 
 class Processor:
       
-      def obj_class(names_class="Don't spray", obj_data_als=[],im0=[],n='',time='5s'):
+      def obj_class(names_class="Don't spray", obj_data_als=[],im0=[],n='',time_set='5s'):
             GPIO.setmode(GPIO.MODE)
             GPIO.setup(18,GPIO.OUT,initial=GPIO.LOW)
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]] 
