@@ -160,7 +160,7 @@ def run(
                     
                 for c in det[:, 5].unique():
                     n = (det[:, 5] == c).sum() 
-                    Processor.obj_class(names_class=names[int(c)], obj_data_als= reversed(det), im0=im0,n=n, time=dt)                     
+                    Processor.obj_class(names_class=names[int(c)], obj_data_als= reversed(det), im0=im0,n=n, time_set=dt)                     
                                
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
