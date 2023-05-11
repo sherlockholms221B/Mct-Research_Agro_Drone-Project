@@ -365,15 +365,15 @@ class LoadStreams:
                 assert not is_kaggle(), '--source 0 webcam unsupported on Kaggle. Rerun command in a local environment.'
             cap = cv2.VideoCapture(s)
             assert cap.isOpened(), f'{st}Failed to open {s}'
-            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))# get the current frame width
+            h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))#get the current frame height
             fps = cap.get(cv2.CAP_PROP_FPS)  # warning: may return 0 or nan
             self.frames[i] = max(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), 0) or float('inf')  # infinite stream fallback
             self.fps[i] = max((fps if math.isfinite(fps) else 0) % 100, 0) or 30  # 30 FPS fallback
 
             _, self.imgs[i] = cap.read()  # guarantee first frame
             self.threads[i] = Thread(target=self.update, args=([i, cap, s]), daemon=True)
-            LOGGER.info(f'{st} Success ({self.frames[i]} frames {w}x{h} at {self.fps[i]:.2f} FPS)')
+            # LOGGER.info(f'{st} Success ({self.frames[i]} frames {w}x{h} at {self.fps[i]:.2f} FPS)')
             self.threads[i].start()
         LOGGER.info('')  # newline
 
@@ -387,7 +387,8 @@ class LoadStreams:
 
     def update(self, i, cap, stream):
         # Read stream `i` frames in daemon thread
-        n, f = 0, self.frames[i]  # frame number, frame array
+        n, f = 0, self.frames[i] 
+        print(n,f) # frame number, frame array
         while cap.isOpened() and n < f:
             n += 1
             cap.grab()  # .read() = .grab() followed by .retrieve()
