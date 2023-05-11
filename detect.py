@@ -103,8 +103,9 @@ def run(
     # Dataloader
     bs = 1  # batch_size
     if webcam:
-        view_img = check_imshow(warn=True)
+        view_img = check_imshow(warn=True)#remember to set initail value to false
         dataset = LoadStreams(source, img_size=imgsz, stride=stride, auto=pt, vid_stride=vid_stride)
+        print(dataset) 
         bs = len(dataset)
         # print(source,'the source') the src of the dataset
         # print(imgsz) the default image size        
