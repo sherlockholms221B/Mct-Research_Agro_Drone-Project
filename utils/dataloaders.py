@@ -341,6 +341,7 @@ class LoadImages:
 
 class LoadStreams:
     # YOLOv5 streamloader, i.e. `python detect.py --source 'rtsp://example.com/media.mp4'  # RTSP, RTMP, HTTP streams`
+    
     def __init__(self, sources='file.streams', img_size=640, stride=32, auto=True, transforms=None, vid_stride=1):
         torch.backends.cudnn.benchmark = True  # faster for fixed-size inference
         self.mode = 'stream'
@@ -353,6 +354,7 @@ class LoadStreams:
         self.imgs, self.fps, self.frames, self.threads = [None] * n, [0] * n, [0] * n, [None] * n
         for i, s in enumerate(sources):  # index, source
             # Start thread to read frames from video stream
+            #removed a for loop
             st = f'{i + 1}/{n}: {s}... '
             if urlparse(s).hostname in ('www.youtube.com', 'youtube.com', 'youtu.be'):  # if source is YouTube video
                 # YouTube format i.e. 'https://www.youtube.com/watch?v=Zgi9g1ksQHc' or 'https://youtu.be/Zgi9g1ksQHc'
