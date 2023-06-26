@@ -3,7 +3,7 @@
 Run inference on images, videos, directories, streams, etc.
 
 Usage - sources:
-    $ python path/to/detect.py --weights yolov5s.pt --source 0              # webcam
+    $ python path/to/weed_detect.py --weights yolov5s.pt --source 0              # webcam
                                                              img.jpg        # image
                                                              vid.mp4        # video
                                                              path/          # directory
@@ -31,7 +31,6 @@ from pathlib import Path
 
 import torch
 import torch.backends.cudnn as cudnn
-
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -39,11 +38,13 @@ if str(ROOT) not in sys.path:
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from models.common import DetectMultiBackend
-from utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
+from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
 from utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
+                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, time_sync
+from utils.sanctus import Processor as Pr
+
 
 import math  #for my integrated weed detection pipeline
 
@@ -151,11 +152,11 @@ def run(
             annotator = Annotator(im0, line_width=line_thickness, example=str(names))
             if len(det):
                 # Rescale boxes from img_size to im0 size
-                det[:, :4] = scale_coords(im.shape[2:], det[:, :4], im0.shape).round()
+                det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
 
                 # Print results
                 for c in det[:, -1].unique():
-                    n = (det[:, -1] == c).sum()  # detections per class
+                    n = (det[:, -1] == c).sum()  # detections per class 
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
                 # Write results
@@ -176,35 +177,15 @@ def run(
                 # My integration of weed detection pipeline
                 # image file already loaded as im0s
                 # extracting the 3 channels of the image
-                img_R = im0s[:,:,0]
-                img_G = im0s[:,:,1]
-                img_B = im0s[:,:,2]
-
-                #Calculating Excess Green
-                img_ExG = (2 * img_G) - img_R - img_B
-
-                #reading the predicted .txt labels
-                with open(txt_path + '.txt') as f_labels:
-                    box_cords=[]
-                    for line_labels in f_labels:
-                        strip_lines=line_labels.strip()
-                        listli=strip_lines.split()
-                        box_cords.append(listli)
-
-                # masking bounding detected bounding boxes to background pixels, 225
-                for ibx in range(len(box_cords)):
-                    #img_ExG[y:y+h,x:x+w]
-                    x = math.floor(((float(box_cords[ibx][1])) - (float(box_cords[ibx][3]))*0.5)*img_ExG.shape[1])
-                    y = math.floor(((float(box_cords[ibx][2])) - (float(box_cords[ibx][4]))*0.5)*img_ExG.shape[0])
-                    w = math.floor(float(box_cords[ibx][3])*img_ExG.shape[1])
-                    h = math.floor((float(box_cords[ibx][4]))*img_ExG.shape[0])
-
-                    img_ExG[y:y+h,x:x+w] = 255 #masking bounding box pixels with 255 values
-
-                #thresholding the soil/vegetation image
-                ret, thresh1 = cv2.threshold(img_ExG, 120, 255, cv2.THRESH_BINARY)
-                cv2.imwrite(save_path, thresh1)
-
+               
+                # rtn_data = Pr.calculate_green_vegetation_hsv(im0s)
+                # cv2.imwrite(save_path,rtn_data[1])
+                # print(f"Green vegetation percentage by hsv: {rtn_data[0]:.2f}%")
+        
+                
+                rtf_data = Pr.calculate_green_vegetation_pix(im0s,txt_path,box_cords)
+                print(rtf_data[0])
+                # print(f"Green vegetation percentage by pixel: {rtf_data[0]:.2f}%")
 
             # Stream results
             im0 = annotator.result()
